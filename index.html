@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LoanVision · Loan Eligibility Assessment</title>
+    <style>
+      :root {
+        --bg: #f5f6fa;
+        --surface: #ffffff;
+        --surface-alt: #faf9fd;
+        --border: #e4e2ef;
+        --border-strong: #d8d4ea;
+        --text: #221f33;
+        --muted: #6b7280;
+        --primary: #5b21b6;
+        --primary-strong: #4c1d95;
+        --accent: #db2777;
+        --success-bg: #e9f8ef;
+        --success-text: #1e7d3c;
+        --success-icon: #22a35a;
+        --danger-bg: #fdecee;
+        --danger-text: #c22a3e;
+        --danger-icon: #e0455b;
+        --shadow: 0 4px 18px rgba(76, 29, 149, 0.07);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html, body {
+        margin: 0;
+        min-height: 100%;
+      }
+
+      body {
+        font-family: "Segoe UI", "Inter", -apple-system, Tahoma, Geneva, Verdana, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        padding: 0 0 64px;
+      }
+
+      .container {
+        max-width: 1140px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+
+      header.topbar {
+        background: linear-gradient(120deg, var(--primary-strong), var(--primary) 55%, var(--accent) 130%);
+        padding: 18px 0;
+        margin-bottom: 32px;
+        box-shadow: 0 2px 12px rgba(76, 29, 149, 0.18);
+      }
+
+      .topbar-inner {
+        max-width: 1140px;
+        margin: 0 auto;
+        padding: 0 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        font-size: 1.05rem;
+        letter-spacing: 0.01em;
+        color: #ffffff;
+      }
+
+      .brand-mark {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+      }
+
+      .status-pill {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 14px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        font-size: 0.8rem;
+        color: #ffffff;
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #fca5b1;
+      }
+
+      .status-dot.online {
+        background: #6ee7a8;
+      }
+
+      .page-heading {
+        margin-bottom: 28px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(1.7rem, 3vw, 2.35rem);
+        font-weight: 700;
+        color: var(--text);
+      }
+
+      .subtitle {
+        margin-top: 8px;
+        max-width: 760px;
+        color: var(--muted);
+        font-size: 0.98rem;
+        line-height: 1.55;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+        margin-top: 22px;
+      }
+
+      .stat-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--primary);
+        border-radius: 10px;
+        padding: 16px 18px;
+        box-shadow: var(--shadow);
+      }
+
+      .stat-label {
+        color: var(--muted);
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+      }
+
+      .stat-value {
+        font-size: 1.45rem;
+        font-weight: 700;
+        color: var(--text);
+      }
+
+      .stat-sub {
+        margin-top: 4px;
+        font-size: 0.76rem;
+        color: var(--muted);
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 1fr 1.15fr;
+        gap: 22px;
+        margin-top: 22px;
+        align-items: start;
+      }
+
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 24px;
+        box-shadow: var(--shadow);
+      }
+
+      .panel h2 {
+        margin: 0 0 4px;
+        font-size: 1.15rem;
+        color: var(--text);
+      }
+
+      .panel-hint {
+        margin: 0 0 18px;
+        color: var(--muted);
+        font-size: 0.84rem;
+      }
+
+      .panel-hint code {
+        background: var(--surface-alt);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 1px 5px;
+        font-size: 0.8rem;
+        color: var(--primary-strong);
+      }
+
+      .feature-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .feature-tag {
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: var(--surface-alt);
+        border: 1px solid var(--border-strong);
+        color: var(--primary-strong);
+        font-size: 0.82rem;
+        font-weight: 500;
+      }
+
+      .feature-note {
+        margin: 10px 0 0;
+        font-size: 0.8rem;
+        color: var(--muted);
+        font-style: italic;
+      }
+
+      .section-label {
+        margin: 18px 0 10px;
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+        font-weight: 600;
+      }
+
+      .field-hint {
+        margin: 7px 0 0;
+        font-size: 0.76rem;
+        color: var(--muted);
+      }
+
+      .field-hint.warn {
+        color: var(--danger-text);
+        font-weight: 600;
+      }
+
+      .meta-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+
+      .meta-item {
+        background: var(--surface-alt);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px 14px;
+      }
+
+      .meta-item strong {
+        display: block;
+        color: var(--muted);
+        font-size: 0.68rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+        font-weight: 600;
+      }
+
+      .meta-item span {
+        color: var(--text);
+        font-size: 0.9rem;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(160px, 1fr));
+        gap: 16px;
+      }
+
+      label {
+        display: block;
+        font-size: 0.82rem;
+        color: var(--muted);
+        margin-bottom: 7px;
+        font-weight: 500;
+      }
+
+      input,
+      select {
+        width: 100%;
+        padding: 11px 13px;
+        border-radius: 8px;
+        border: 1px solid var(--border-strong);
+        background: var(--surface);
+        color: var(--text);
+        font-size: 0.95rem;
+        outline: none;
+        appearance: none;
+        font-family: inherit;
+      }
+
+      select {
+        background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+          linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+        background-position: calc(100% - 18px) center, calc(100% - 13px) center;
+        background-size: 5px 5px, 5px 5px;
+        background-repeat: no-repeat;
+      }
+
+      input:focus,
+      select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(91, 33, 182, 0.12);
+      }
+
+      .button-row {
+        margin-top: 18px;
+      }
+
+      button {
+        width: 100%;
+        cursor: pointer;
+        border: none;
+        border-radius: 9px;
+        padding: 13px 18px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: white;
+        background: linear-gradient(120deg, var(--primary-strong), var(--primary));
+        box-shadow: 0 8px 20px rgba(91, 33, 182, 0.25);
+        transition: filter 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      button:hover {
+        filter: brightness(1.06);
+        box-shadow: 0 10px 24px rgba(91, 33, 182, 0.32);
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .decision-banner {
+        margin-top: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 18px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+
+      .decision-banner.hidden {
+        display: none;
+      }
+
+      .decision-banner.approved {
+        background: var(--success-bg);
+        color: var(--success-text);
+      }
+
+      .decision-banner.rejected {
+        background: var(--danger-bg);
+        color: var(--danger-text);
+      }
+
+      .decision-icon {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        color: white;
+        font-size: 0.82rem;
+        font-weight: 800;
+      }
+
+      .decision-banner.approved .decision-icon {
+        background: var(--success-icon);
+      }
+
+      .decision-banner.rejected .decision-icon {
+        background: var(--danger-icon);
+      }
+
+      .result-note {
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: 0.84rem;
+        line-height: 1.5;
+        word-break: break-word;
+      }
+
+      .spinner {
+        display: inline-block;
+        width: 13px;
+        height: 13px;
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+        margin-right: 8px;
+        vertical-align: -2px;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      footer {
+        text-align: center;
+        margin-top: 32px;
+        color: var(--muted);
+        font-size: 0.8rem;
+      }
+
+      @media (max-width: 900px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .form-grid,
+        .meta-list {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <span class="brand-mark">◈</span>
+          LoanVision
+        </div>
+        <div class="status-pill">
+          <span id="statusDot" class="status-dot"></span>
+          <span id="statusText">Checking service…</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="container">
+      <div class="page-heading">
+        <h1>Loan Eligibility Assessment</h1>
+        <p class="subtitle">
+          This tool evaluates a loan application using our trained credit-risk model and returns an
+          instant eligibility decision. Assessments are produced by <code>load_model</code>,
+          <code>encode_features_from_user_input</code> and <code>predict_loan</code> from the
+          loan-eligibility service.
+        </p>
+
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-label">Model</div>
+            <div id="modelName" class="stat-value">—</div>
+            <div id="modelKernel" class="stat-sub">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Accuracy</div>
+            <div id="accuracy" class="stat-value">—</div>
+            <div class="stat-sub">on held-out test set</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Geometric Margin</div>
+            <div id="margin" class="stat-value">—</div>
+            <div class="stat-sub">2 / ‖w‖</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Features</div>
+            <div id="featureCount" class="stat-value">—</div>
+            <div class="stat-sub">input attributes</div>
+          </div>
+        </div>
+      </div>
+
+      <main class="layout">
+        <section class="panel">
+          <h2>Model information</h2>
+          <p class="panel-hint">Live data from <code>GET /model-info</code></p>
+
+          <div class="feature-list" id="featureList"></div>
+          <p class="feature-note">Loan percentage = Loan Amount / Person Income</p>
+
+          <div class="section-label">Details</div>
+          <div class="meta-list" id="metaList"></div>
+
+          <div class="section-label">Approval thresholds</div>
+          <div class="meta-list">
+            <div class="meta-item">
+              <strong>Minimum income</strong>
+              <span>$8,000</span>
+            </div>
+            <div class="meta-item">
+              <strong>Maximum loan-to-income ratio</strong>
+              <span>70%</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Loan application</h2>
+          <p class="panel-hint">Enter applicant details to receive an eligibility decision</p>
+
+          <form id="predictForm">
+            <div class="form-grid">
+              <div>
+                <label for="person_income">Applicant Income ($)</label>
+                <input id="person_income" type="number" value="60000" step="1" min="8000" required />
+                <p class="field-hint">Minimum required income: $8,000</p>
+              </div>
+              <div>
+                <label for="loan_amount">Loan Amount ($)</label>
+                <input id="loan_amount" type="number" value="15000" step="1" min="0" required />
+                <p class="field-hint" id="loanPercentageHint">Loan-to-income ratio must be ≤ 70%</p>
+              </div>
+              <div>
+                <label for="credit_score">Credit Score</label>
+                <input id="credit_score" type="number" value="650" step="1" min="300" max="850" required />
+              </div>
+              <div>
+                <label for="credit_history">Credit History</label>
+                <input id="credit_history" type="number" value="4" step="1" min="0" required />
+              </div>
+              <div>
+                <label for="home_ownership">Home Ownership</label>
+                <select id="home_ownership">
+                  <option value="RENT">Rent</option>
+                  <option value="OWN">Own</option>
+                  <option value="MORTGAGE">Mortgage</option>
+                  <option value="OTHER">Other</option>
+                </select>
+              </div>
+              <div>
+                <label for="previous_loan">Previous Loan</label>
+                <select id="previous_loan">
+                  <option value="No">No</option>
+                  <option value="Yes">Yes</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="button-row">
+              <button id="predictBtn" type="submit">Check Eligibility</button>
+            </div>
+          </form>
+
+          <div id="decisionBanner" class="decision-banner hidden">
+            <span id="decisionIcon" class="decision-icon"></span>
+            <span id="decisionText"></span>
+          </div>
+          <div id="resultNote" class="result-note"></div>
+        </section>
+      </main>
+
+      <footer>Model: loan_rbf_model.pkl · SVC(kernel='rbf') · Class 0 = Approved, Class 1 = Not Approved</footer>
+    </div>
+
+    <script>
+      const API_BASE = 'http://localhost:8000';
+
+      const els = {
+        statusDot: document.getElementById('statusDot'),
+        statusText: document.getElementById('statusText'),
+        modelName: document.getElementById('modelName'),
+        modelKernel: document.getElementById('modelKernel'),
+        accuracy: document.getElementById('accuracy'),
+        margin: document.getElementById('margin'),
+        featureCount: document.getElementById('featureCount'),
+        featureList: document.getElementById('featureList'),
+        metaList: document.getElementById('metaList'),
+        form: document.getElementById('predictForm'),
+        predictBtn: document.getElementById('predictBtn'),
+        decisionBanner: document.getElementById('decisionBanner'),
+        decisionIcon: document.getElementById('decisionIcon'),
+        decisionText: document.getElementById('decisionText'),
+        resultNote: document.getElementById('resultNote'),
+        personIncome: document.getElementById('person_income'),
+        loanAmount: document.getElementById('loan_amount'),
+        loanPercentageHint: document.getElementById('loanPercentageHint'),
+      };
+
+      // Business approval thresholds, applied on top of the model's own prediction.
+      const MIN_INCOME = 8000;
+      const MAX_LOAN_PERCENTAGE = 0.7;
+
+      function computeLoanPercentage() {
+        const income = Number(els.personIncome.value);
+        const amount = Number(els.loanAmount.value);
+        if (!income || income <= 0 || !Number.isFinite(amount)) {
+          return null;
+        }
+        return amount / income;
+      }
+
+      function updateLoanPercentageHint() {
+        const ratio = computeLoanPercentage();
+        els.loanPercentageHint.textContent = 'Loan-to-income ratio must be ≤ 70%';
+        els.loanPercentageHint.classList.toggle('warn', ratio !== null && ratio > MAX_LOAN_PERCENTAGE);
+      }
+
+      els.personIncome.addEventListener('input', updateLoanPercentageHint);
+      els.loanAmount.addEventListener('input', updateLoanPercentageHint);
+
+      function setStatus(online, label) {
+        els.statusDot.classList.toggle('online', online);
+        els.statusText.textContent = label;
+      }
+
+      function renderModelInfo(info) {
+        els.modelName.textContent = info.model_name || 'SVC';
+        els.modelKernel.textContent = `kernel='${info.kernel}'`;
+        els.accuracy.textContent = (info.accuracy * 100).toFixed(1) + '%';
+        els.margin.textContent = Number(info.margin).toFixed(4);
+        els.featureCount.textContent = info.training_features.length;
+
+        els.featureList.innerHTML = '';
+        info.training_features.forEach((feature) => {
+          const chip = document.createElement('span');
+          chip.className = 'feature-tag';
+          chip.textContent = feature;
+          els.featureList.appendChild(chip);
+        });
+
+        const metaEntries = [
+          ['Model file', info.model_file],
+          ['Pipeline', info.pipeline.join(' → ')],
+        ];
+        els.metaList.innerHTML = '';
+        metaEntries.forEach(([label, value]) => {
+          const item = document.createElement('div');
+          item.className = 'meta-item';
+          item.innerHTML = `<strong>${label}</strong><span>${value}</span>`;
+          els.metaList.appendChild(item);
+        });
+      }
+
+      async function loadModelInfo() {
+        try {
+          const response = await fetch(`${API_BASE}/model-info`);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const info = await response.json();
+          renderModelInfo(info);
+          setStatus(true, 'Service online');
+        } catch (error) {
+          console.error('Failed to load /model-info:', error);
+          setStatus(false, 'Service offline');
+        }
+      }
+
+      function setLoading(isLoading) {
+        els.predictBtn.disabled = isLoading;
+        els.predictBtn.innerHTML = isLoading ? '<span class="spinner"></span>Checking…' : 'Check Eligibility';
+      }
+
+      function renderDecision(approved, reasons) {
+        els.decisionBanner.classList.remove('hidden', 'approved', 'rejected');
+        els.decisionBanner.classList.add(approved ? 'approved' : 'rejected');
+        els.decisionIcon.textContent = approved ? '✓' : '✕';
+        els.decisionText.textContent = approved ? 'Loan Approved' : 'Loan Not Approved';
+
+        if (!approved && reasons && reasons.length > 0) {
+          els.resultNote.textContent += ' Reason: ' + reasons.join('; ') + '.';
+        }
+      }
+
+      els.form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const personIncome = Number(els.personIncome.value);
+        const loanAmount = Number(els.loanAmount.value);
+        const loanPercentage = computeLoanPercentage();
+
+        const payload = {
+          person_income: personIncome,
+          home_ownership: document.getElementById('home_ownership').value,
+          credit_history: Number(document.getElementById('credit_history').value),
+          credit_score: Number(document.getElementById('credit_score').value),
+          loan_percentage: loanPercentage ?? 0,
+          previous_loan: document.getElementById('previous_loan').value,
+        };
+
+        setLoading(true);
+        els.decisionBanner.classList.add('hidden');
+        els.resultNote.textContent = 'Submitting application…';
+
+        try {
+          const response = await fetch(`${API_BASE}/predict`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+
+          if (!response.ok) {
+            const errBody = await response.json().catch(() => ({}));
+            throw new Error(errBody.detail ? JSON.stringify(errBody.detail) : `HTTP ${response.status}`);
+          }
+
+          const data = await response.json();
+          const predictionValue = Array.isArray(data.prediction) ? data.prediction[0] : data.prediction;
+
+          // Class 0 = loan approved, Class 1 = loan not approved (model risk assessment).
+          const modelApproves = predictionValue === 0;
+
+          const reasons = [];
+          if (personIncome < MIN_INCOME) {
+            reasons.push(`income below the $${MIN_INCOME.toLocaleString()} minimum`);
+          }
+          if (loanPercentage === null || loanPercentage > MAX_LOAN_PERCENTAGE) {
+            reasons.push('loan-to-income ratio exceeds 70%');
+          }
+          if (!modelApproves) {
+            reasons.push('risk model assessment');
+          }
+
+          const finalApproved = modelApproves && reasons.length === 0;
+
+          els.resultNote.textContent =
+            `Raw model output (y_predict): ${JSON.stringify(data.prediction)} · ` +
+            `Loan-to-income ratio: ${loanPercentage === null ? '—' : (loanPercentage * 100).toFixed(1) + '%'}.`;
+
+          renderDecision(finalApproved, reasons);
+
+          setStatus(true, 'Service online');
+        } catch (error) {
+          console.error('Prediction request failed:', error);
+          els.decisionBanner.classList.remove('hidden', 'approved');
+          els.decisionBanner.classList.add('rejected');
+          els.decisionIcon.textContent = '!';
+          els.decisionText.textContent = 'Unable to complete assessment';
+          els.resultNote.textContent = `Could not reach the loan service: ${error.message}. Please ensure the API is running at ${API_BASE}.`;
+          setStatus(false, 'Service offline');
+        } finally {
+          setLoading(false);
+        }
+      });
+
+      loadModelInfo();
+      updateLoanPercentageHint();
+    </script>
+  </body>
+</html>
