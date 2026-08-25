@@ -1,3 +1,5 @@
+##### Vibe code :  Function for using the model ; REST API #####
+
 from typing import Any, Dict, Literal
 
 import joblib
